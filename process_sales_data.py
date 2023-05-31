@@ -9,6 +9,9 @@ Parameters:
   sales_csv_path = Full path of the sales data CSV file
 """
 import pandas as pd
+import sys
+import os.path
+from datetime import date
 
 def main():
     sales_csv_path = get_sales_csv_path()
@@ -22,9 +25,18 @@ def get_sales_csv_path():
         str: Path of sales data CSV file
     """
     # TODO: Check whether command line parameter provided
+    num_params = len(sys.argv) - 1
+    if num_params < 1:
+        print("Error: Mising CSV  path parameter.")
+        sys.exit()
     # TODO: Check whether provide parameter is valid path of file
+    csv_path = sys.argv[1]
+    if not os.path.isfile(csv_path):
+        print("Error: CSV path is not an existing file")
+        sys.exit()
+
     # TODO: Return path of sales data CSV file
-    return 
+    return os.path.abspath(csv_path)
 
 def create_orders_dir(sales_csv_path):
     """Creates the directory to hold the individual order Excel sheets
@@ -36,8 +48,14 @@ def create_orders_dir(sales_csv_path):
         str: Path of orders directory
     """
     # TODO: Get directory in which sales data CSV file resides
+    sales_csv_dir= os.path.dirname(sales_csv_path)
     # TODO: Determine the path of the directory to hold the order data files
+    todays_date = date.today().iosformat()
+    orders_dir = f'Orders_{todays_date}'
+    orders_dir_path = os.path.join,(sales_csv_dir, orders_dir)
     # TODO: Create the orders directory if it does not already exist
+    if not os.path.isdir(orders_dir_path):
+        os.mkedirs
     # TODO: Return path of orders directory
     return
 
@@ -49,7 +67,9 @@ def process_sales_data(sales_csv_path, orders_dir_path):
         orders_dir_path (str): Path of orders directory
     """
     # TODO: Import the sales data from the CSV file into a DataFrame
+    df = pd.read_csv(sales_csv_path)
     # TODO: Insert a new "TOTAL PRICE" column into the DataFrame
+    df.insert(7,'TOTAL PRICE', df['ITEM QUA'])
     # TODO: Remove columns from the DataFrame that are not needed
     # TODO: Groups orders by ID and iterate 
         # TODO: Remove the 'ORDER ID' column
