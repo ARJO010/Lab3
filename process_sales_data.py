@@ -126,7 +126,14 @@ def process_sales_data(sales_csv_path, orders_dir_path):
         # as the index or headers or any cells that contain dates or datetimes.
 
         # Set the column width and format.
-        worksheet.set_column(1, 1, 18, format)
+        worksheet.set_column(0, 0, 11)
+        worksheet.set_column(1, 1, 13)
+        worksheet.set_column(2, 4, 15)
+        worksheet.set_column(4, 5, 13)
+        worksheet.set_column('F:G', 13, format)
+        worksheet.set_column('H:H', 10)
+        worksheet.set_column('I:I', 30)
+
 
         # Close the Pandas Excel writer and output the Excel file.
         writer.close()
