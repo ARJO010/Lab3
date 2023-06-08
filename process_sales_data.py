@@ -24,12 +24,12 @@ def get_sales_csv_path():
     Returns:
         str: Path of sales data CSV file
     """
-    # TODO: Check whether command line parameter provided
+    # Check whether command line parameter provided
     num_params = len(sys.argv) - 1
     if num_params < 1:
         print("Error: Mising CSV  path parameter.")
         sys.exit()
-    # TODO: Check whether provide parameter is valid path of file
+    # Check whether provide parameter is valid path of file
     csv_path = sys.argv[1]
     if not os.path.isfile(csv_path):
         print("Error: CSV path is not an existing file")
@@ -50,14 +50,16 @@ def create_orders_dir(sales_csv_path):
     # TODO: Get directory in which sales data CSV file resides
     sales_csv_dir= os.path.dirname(sales_csv_path)
     # TODO: Determine the path of the directory to hold the order data files
-    todays_date = date.today().iosformat()
+    todays_date = date.today().isoformat()
     orders_dir = f'Orders_{todays_date}'
     orders_dir_path = os.path.join,(sales_csv_dir, orders_dir)
+
     # TODO: Create the orders directory if it does not already exist
     if not os.path.isdir(orders_dir_path):
-        os.mkedirs
+        os.makedirs(orders_dir_path)
+
     # TODO: Return path of orders directory
-    return
+    return orders_dir_path
 
 def process_sales_data(sales_csv_path, orders_dir_path):
     """Splits the sales data into individual orders and save to Excel sheets
@@ -71,10 +73,21 @@ def process_sales_data(sales_csv_path, orders_dir_path):
     # TODO: Insert a new "TOTAL PRICE" column into the DataFrame
     df.insert(7,'TOTAL PRICE', df['ITEM QUA'])
     # TODO: Remove columns from the DataFrame that are not needed
+    df.drop(columns=['ADDRESS', 'CITY', 'STATE', 'POSTAL CODE', 'COUNTRY'], inplace=True)
     # TODO: Groups orders by ID and iterate 
+    for order_id, order_df in df.groupby('ORDER ID'):
         # TODO: Remove the 'ORDER ID' column
+        order_df.drop(coloumns=['ORDER ID'], inplace=True)
         # TODO: Sort the items by item number
+        order_df.sort_values(by=['ITEM NUMBER'], inplace=True)
         # TODO: Append a "GRAND TOTAL" row
+        grand_total = order_df['TOTAL PRICE'].sum()
+        grand_total_df =pd.DataFrame({'ITEM PRICE': ['GRAND TOTAL'], 'TOTAL PRICE': [grand_total]})
+        order_df = pd.contact([order_df, grand_total_df])
+
+        print(order_df)
+
+    
         # TODO: Determine the file name and full path of the Excel sheet
         # TODO: Export the data to an Excel sheet
         # TODO: Format the Excel sheet
