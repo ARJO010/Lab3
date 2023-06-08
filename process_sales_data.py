@@ -12,6 +12,7 @@ import pandas as pd
 import sys
 import os.path
 from datetime import date
+import re
 
 def main():
     sales_csv_path = get_sales_csv_path()
@@ -25,17 +26,21 @@ def get_sales_csv_path():
         str: Path of sales data CSV file
     """
     # Check whether command line parameter provided
-    num_params = len(sys.argv) - 1
+
+    num_params = len(sys.argv) -1
     if num_params < 1:
-        print("Error: Mising CSV  path parameter.")
-        sys.exit()
-    # Check whether provide parameter is valid path of file
-    csv_path = sys.argv[1]
-    if not os.path.isfile(csv_path):
-        print("Error: CSV path is not an existing file")
+        print("Error:Missing CSV path parameter.")
         sys.exit()
 
-    # TODO: Return path of sales data CSV file
+    # Check whether provide parameter is valid path of file
+
+    csv_path = sys.argv[1]
+    if not os.path.isfile(csv_path):
+        print("Error: CSV path is not existing file.")
+        sys.exit()
+
+    #  Return path of sales data CSV file
+
     return os.path.abspath(csv_path)
 
 def create_orders_dir(sales_csv_path):
@@ -47,18 +52,24 @@ def create_orders_dir(sales_csv_path):
     Returns:
         str: Path of orders directory
     """
-    # TODO: Get directory in which sales data CSV file resides
-    sales_csv_dir= os.path.dirname(sales_csv_path)
-    # TODO: Determine the path of the directory to hold the order data files
+    #  Get directory in which sales data CSV file resides
+
+    sales_csv_dir = os.path.dirname(sales_csv_path)
+
+
+    #  Determine the path of the directory to hold the order data files
+
     todays_date = date.today().isoformat()
     orders_dir = f'Orders_{todays_date}'
-    orders_dir_path = os.path.join,(sales_csv_dir, orders_dir)
+    orders_dir_path = os.path.join(sales_csv_dir,orders_dir)
 
-    # TODO: Create the orders directory if it does not already exist
+    #  Create the orders directory if it does not already exist
+
     if not os.path.isdir(orders_dir_path):
         os.makedirs(orders_dir_path)
 
-    # TODO: Return path of orders directory
+    #  Return path of orders directory
+
     return orders_dir_path
 
 def process_sales_data(sales_csv_path, orders_dir_path):
@@ -68,32 +79,63 @@ def process_sales_data(sales_csv_path, orders_dir_path):
         sales_csv_path (str): Path of sales data CSV file
         orders_dir_path (str): Path of orders directory
     """
-    # TODO: Import the sales data from the CSV file into a DataFrame
+    #  Import the sales data from the CSV file into a DataFrame
     df = pd.read_csv(sales_csv_path)
-    # TODO: Insert a new "TOTAL PRICE" column into the DataFrame
-    df.insert(7,'TOTAL PRICE', df['ITEM QUA'])
-    # TODO: Remove columns from the DataFrame that are not needed
-    df.drop(columns=['ADDRESS', 'CITY', 'STATE', 'POSTAL CODE', 'COUNTRY'], inplace=True)
+
+    #  Insert a new "TOTAL PRICE" column into the DataFrame
+    df.insert(7,'TOTAL PRICE', df['ITEM QUANTITY'] * df['ITEM PRICE'])
+    # Remove columns from the DataFrame that are not needed
+    df.drop(columns=['ADDRESS','CITY', 'STATE', 'POSTAL CODE', 'COUNTRY'], inplace=True)
     # TODO: Groups orders by ID and iterate 
     for order_id, order_df in df.groupby('ORDER ID'):
-        # TODO: Remove the 'ORDER ID' column
-        order_df.drop(coloumns=['ORDER ID'], inplace=True)
-        # TODO: Sort the items by item number
-        order_df.sort_values(by=['ITEM NUMBER'], inplace=True)
-        # TODO: Append a "GRAND TOTAL" row
+        #  Remove the 'ORDER ID' column
+        order_df.drop(columns=['ORDER ID'], inplace=True)
+        # Sort the items by item number
+        order_df.sort_values(by='ITEM NUMBER', inplace=True)
+        # Append a "GRAND TOTAL" row
         grand_total = order_df['TOTAL PRICE'].sum()
-        grand_total_df =pd.DataFrame({'ITEM PRICE': ['GRAND TOTAL'], 'TOTAL PRICE': [grand_total]})
-        order_df = pd.contact([order_df, grand_total_df])
+        grand_total_df = pd.DataFrame({'ITEM PRICE': ['GRAND TOTAL'], 'TOTAL PRICE': [grand_total]})
+        order_df = pd.concat([order_df, grand_total_df])
+        
+     
+        #  Determine the file name and full path of the Excel sheet
 
-        print(order_df)
+        customer_name = order_df['CUSTOMER NAME'].values[0]
+        customer_name = re.sub(r'\w', '', customer_name)
+        order_file = f'Order{order_id}_{customer_name}.xlsx'
+        order_excel_path = os.path.join(orders_dir_path, order_file)
 
-    
-        # TODO: Determine the file name and full path of the Excel sheet
-        # TODO: Export the data to an Excel sheet
-        # TODO: Format the Excel sheet
-        # TODO: Define format for the money columns
-        # TODO: Format each colunm
-        # TODO: Close the Excelwriter 
+        #  Export the data to an Excel sheet
+
+        worksheet_name = f'Order #{order_id}'
+        
+        #order_df.to_excel(order_excel_path, index=False, sheet_name=worksheet_name)
+        writer = pd.ExcelWriter("order_excel_path.xlsx", engine="xlsxwriter")
+
+        # Convert the dataframe to an XlsxWriter Excel object.
+        df.to_excel(writer, sheet_name="worksheet_name")
+
+        # Get the xlsxwriter workbook and worksheet objects.
+        workbook = writer.book
+        worksheet = writer.sheets["worksheet_name"]
+
+        # Add some cell formats.
+        format = workbook.add_format({"num_format": "$#,##0.00"})
+
+        # Note: It isn't possible to format any cells that already have a format such
+        # as the index or headers or any cells that contain dates or datetimes.
+
+        # Set the column width and format.
+        worksheet.set_column(1, 1, 18, format)
+
+        # Close the Pandas Excel writer and output the Excel file.
+        writer.close()
+       
+        # Format the Excel sheet
+
+        #  Define format for the money columns
+        #  Format each colunm
+        #  Close the Excelwriter 
     return
 
 if __name__ == '__main__':
