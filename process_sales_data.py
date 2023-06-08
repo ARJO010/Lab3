@@ -36,7 +36,7 @@ def get_sales_csv_path():
 
     csv_path = sys.argv[1]
     if not os.path.isfile(csv_path):
-        print("Error: CSV path is not existing file.")
+        print("Error: CSV path is not an existing file.")
         sys.exit()
 
     #  Return path of sales data CSV file
@@ -61,7 +61,7 @@ def create_orders_dir(sales_csv_path):
 
     todays_date = date.today().isoformat()
     orders_dir = f'Orders_{todays_date}'
-    orders_dir_path = os.path.join(sales_csv_dir,orders_dir)
+    orders_dir_path = os.path.join(sales_csv_dir, orders_dir)
 
     #  Create the orders directory if it does not already exist
 
@@ -107,21 +107,23 @@ def process_sales_data(sales_csv_path, orders_dir_path):
 
         #  Export the data to an Excel sheet
 
-        #worksheet_name = f'Order #{order_id}'
+        worksheet_name = f'Order #{order_id}'
+
         #order_df.to_excel(order_excel_path, index=False, sheet_name=worksheet_name)
-        writer = pd.ExcelWriter("order_excel_path.xlsx", engine="xlsxwriter")
-        df.to_excel(writer, sheet_name="worksheet_name")
+
+        writer = pd.ExcelWriter(order_excel_path, engine="xlsxwriter")
+        order_df.to_excel(writer, index=False, sheet_name=worksheet_name)
         workbook = writer.book
-        worksheet = writer.sheets["worksheet_name"]
+        worksheet = writer.sheets[worksheet_name]
 
         #  Define format for the money columns
-        format_1 = workbook.add_format({"num_format": "$#,##0.00"})
+        money_format = workbook.add_format({"num_format": "$#,##0.00"})
 
         #  Format each colunm
         worksheet.set_column(0, 0, 11)
         worksheet.set_column(1, 1, 13)
         worksheet.set_column(2, 4, 15)
-        worksheet.set_column('F:G', 13, format_1)
+        worksheet.set_column('F:G', 13, money_format)
         worksheet.set_column('H:H', 10)
         worksheet.set_column('I:I', 30)
 
