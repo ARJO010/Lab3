@@ -108,41 +108,28 @@ def process_sales_data(sales_csv_path, orders_dir_path):
         #  Export the data to an Excel sheet
 
         worksheet_name = f'Order #{order_id}'
-        
         #order_df.to_excel(order_excel_path, index=False, sheet_name=worksheet_name)
         writer = pd.ExcelWriter("order_excel_path.xlsx", engine="xlsxwriter")
-
-        # Convert the dataframe to an XlsxWriter Excel object.
-        df.to_excel(writer, sheet_name="worksheet_name")
-
-        # Get the xlsxwriter workbook and worksheet objects.
+        df.to_excel(writer, sheet_name="worksheet_name", index = False)
         workbook = writer.book
         worksheet = writer.sheets["worksheet_name"]
 
-        # Add some cell formats.
-        format = workbook.add_format({"num_format": "$#,##0.00"})
+        #  Define format for the money columns
+        format_1 = workbook.add_format({"num_format": "$#,##0.00"})
 
-        # Note: It isn't possible to format any cells that already have a format such
-        # as the index or headers or any cells that contain dates or datetimes.
-
-        # Set the column width and format.
+        #  Format each colunm
         worksheet.set_column(0, 0, 11)
         worksheet.set_column(1, 1, 13)
         worksheet.set_column(2, 4, 15)
         worksheet.set_column(4, 5, 13)
-        worksheet.set_column('F:G', 13, format)
+        worksheet.set_column('F:G', 13, format_1)
         worksheet.set_column('H:H', 10)
         worksheet.set_column('I:I', 30)
 
 
-        # Close the Pandas Excel writer and output the Excel file.
-        writer.close()
-       
-        # Format the Excel sheet
-
-        #  Define format for the money columns
-        #  Format each colunm
         #  Close the Excelwriter 
+        writer.close()
+
     return
 
 if __name__ == '__main__':
