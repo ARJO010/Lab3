@@ -110,7 +110,7 @@ def process_sales_data(sales_csv_path, orders_dir_path):
         #worksheet_name = f'Order #{order_id}'
         #order_df.to_excel(order_excel_path, index=False, sheet_name=worksheet_name)
         writer = pd.ExcelWriter("order_excel_path.xlsx", engine="xlsxwriter")
-        df.to_excel(writer, index=False, sheet_name="worksheet_name")
+        df.to_excel(writer, sheet_name="worksheet_name")
         workbook = writer.book
         worksheet = writer.sheets["worksheet_name"]
 
