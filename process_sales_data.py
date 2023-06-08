@@ -107,10 +107,10 @@ def process_sales_data(sales_csv_path, orders_dir_path):
 
         #  Export the data to an Excel sheet
 
-        worksheet_name = f'Order #{order_id}'
+        #worksheet_name = f'Order #{order_id}'
         #order_df.to_excel(order_excel_path, index=False, sheet_name=worksheet_name)
         writer = pd.ExcelWriter("order_excel_path.xlsx", engine="xlsxwriter")
-        df.to_excel(writer, sheet_name="worksheet_name", index = False)
+        df.to_excel(writer, index=False, sheet_name="worksheet_name")
         workbook = writer.book
         worksheet = writer.sheets["worksheet_name"]
 
@@ -121,7 +121,6 @@ def process_sales_data(sales_csv_path, orders_dir_path):
         worksheet.set_column(0, 0, 11)
         worksheet.set_column(1, 1, 13)
         worksheet.set_column(2, 4, 15)
-        worksheet.set_column(4, 5, 13)
         worksheet.set_column('F:G', 13, format_1)
         worksheet.set_column('H:H', 10)
         worksheet.set_column('I:I', 30)
